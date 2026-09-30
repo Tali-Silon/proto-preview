@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentic Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f4f6; --surface:#fff; --border:#e5e7eb; --text:#111827; --muted:#6b7280;
+  --blue:#1d5fd6; --navy:#0f3d7a; --active:#dbe8fd; --green:#15803d; --green-bg:#dcfce7;
+  --amber:#a16207; --amber-bg:#fef3c7; --red:#c62828; --grad:linear-gradient(90deg,#1d5fd6,#6a4fd8);
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:#e9ebef;color:var(--text);font-size:13px;min-height:100vh;padding:12px}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.app{background:var(--bg);border:1px solid var(--border);border-radius:24px;height:calc(100vh - 24px);min-height:640px;display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.badge{position:relative}.badge i{position:absolute;top:-7px;right:-7px;background:#dc2626;color:#fff;font-style:normal;font-size:9px;border-radius:9px;padding:1px 4px}
+.avatar{width:32px;height:32px;border-radius:50%;background:#4b5563;color:#fff;display:grid;place-items:center;font-size:11px}
+.body{flex:1;display:flex;gap:10px;padding:12px;min-height:0}
+.navslot{width:236px;flex:none;position:relative;transition:width .25s ease}
+.navslot.rail{width:52px}
+nav{width:100%;height:100%;display:flex;flex-direction:column;padding-top:4px;position:relative}
+nav.float{position:absolute;left:0;top:0;bottom:0;width:236px;height:auto;z-index:20;background:var(--bg);border-radius:16px;padding:4px 8px 8px;box-shadow:0 8px 32px rgba(0,0,0,.22)}
+nav.float .collapse{right:-14px}
+nav .lbl{white-space:nowrap;overflow:hidden}
+nav .item .chev{margin-left:auto}
+nav .grp{display:block}
+nav.collapsed .lbl,nav.collapsed .chev,nav.collapsed .sub{display:none}
+nav.collapsed .item{justify-content:center;padding:9px 0}
+.collapse{position:absolute;right:-19px;top:28px;width:28px;height:28px;border-radius:50%;background:#fff;border:1.5px solid #c9ccd1;display:grid;place-items:center;color:#4b5563;z-index:3}
+.collapse .ico{width:14px;height:14px;transition:transform .25s}
+nav.collapsed .collapse .ico{transform:rotate(180deg)}
+nav .item{display:flex;white-space:nowrap;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;width:100%;text-align:left;font-size:13.5px}
+nav .item.active{background:var(--active);color:var(--blue);font-weight:500}
+nav .sub{padding:8px 0 8px 36px;display:block;width:100%;text-align:left;font-size:13.5px}
+nav .spacer{flex:1}
+nav .item:not(#navHome):not(#navRecent):not([data-grp]),nav .sub{cursor:default}
+.ico{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.main{flex:1;min-width:0;background:var(--surface);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.main header{height:72px;flex:none;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px}
+.main header h1{font-size:19px;font-weight:500;white-space:nowrap}
+.ai-btn{display:flex;white-space:nowrap;flex:none;align-items:center;gap:7px;background:var(--blue);color:#fff;padding:9px 14px;border-radius:6px;font-weight:500;transition:background .15s}
+.ai-btn.open{background:var(--navy)}
+.content{max-width:86rem;margin-inline:auto}
+.brief p,.sec-h .sub,.sub-t,.row .t b,.row .t span,.card b,.card p,.eyebrow+h3,.sec-h h3{max-width:50rem}
+.scroll{flex:1;overflow:auto;padding:32px}
+.brief{background:#f5f8fe;border:1px solid #e3ebf8;border-radius:16px;padding:26px 24px}
+.brief .tag{display:flex;align-items:center;gap:8px;color:var(--blue);font-weight:500}
+.dot{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#7cc0ff,#5b5bd6);display:inline-grid;place-items:center;color:#fff}.dot .ico{width:11px;height:11px}
+.brief h2{color:#1e4fb8;font-size:24px;font-weight:600;margin:14px 0 8px}
+.brief p{font-size:14px;line-height:1.5;max-width:800px}
+.sec-h{margin-top:28px}
+.sec-h h3{font-size:19px;font-weight:500}
+.sec-h .sub,.sub-t{color:var(--muted);font-size:13.5px;margin-top:4px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:10px}
+.tile{border:1px solid var(--border);border-radius:8px;padding:12px;text-align:left;background:#fff;cursor:default}
+.tile .l{font-size:14px}.tile .v{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+.tile .n{font-size:26px;font-weight:600}.tile .s{font-size:12px;color:var(--muted)}
+.pill{font-size:11.5px;padding:3px 8px;border-radius:4px}
+.g{color:var(--green)}.a{color:var(--amber)}.r{color:var(--red)}
+.pill.g{background:var(--green-bg)}.pill.a{background:var(--amber-bg)}
+.eyebrow{color:var(--blue);font-size:12px;margin-top:26px}
+.eyebrow+h3{font-size:16px;font-weight:500;margin-top:6px}
+.list{border:1px solid var(--border);border-radius:8px;margin-top:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:76px minmax(0,1fr) 130px;cursor:default;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid var(--border);width:100%;text-align:left}
+.row:first-child{border-top:0}
+.chip{flex:none;width:76px;text-align:center;font-size:12px;padding:4px 0;border-radius:4px}
+.chip.c-h{background:var(--amber-bg);color:var(--amber)}.chip.c-t{background:#c62828;color:#fff}.chip.c-w{background:var(--green-bg);color:var(--green)}
+.row .t{flex:1;min-width:0}.row .t b{font-weight:400;font-size:15px;display:block}.row .t span{font-size:12px;color:var(--muted)}
+.row .m{font-size:12px;color:var(--muted)}.row .m b{font-size:15px;color:var(--text);font-weight:500;margin-right:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:12px}
+.card{border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.card .k{display:inline-block;border:1px solid var(--border);border-radius:4px;font-size:12px;padding:2px 8px;margin-bottom:10px}
+.card b{display:block;font-weight:500;font-size:13.5px}.card p{font-size:12px;color:var(--muted);margin:5px 0 12px}
+.cta{background:var(--blue);color:#fff;padding:9px 16px;border-radius:5px;display:inline-flex;gap:8px;align-items:center;font-weight:500}
+/* AI panel */
+.panel{width:0;flex:none;overflow:hidden;transition:width .28s ease;background:var(--surface);border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.panel.open{width:404px}
+.panel.float{position:absolute;right:12px;top:12px;bottom:12px;width:min(404px,calc(100% - 24px));z-index:16;transform:translateX(calc(100% + 24px));visibility:hidden;transition:transform .28s ease,visibility 0s .28s;box-shadow:0 8px 32px rgba(0,0,0,.22)}
+.panel.float.open{transform:none;visibility:visible;transition:transform .28s ease}
+.panel.float .panel-in{width:100%}
+.scrim{position:absolute;inset:0;background:rgba(17,24,39,.35);z-index:14;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.scrim.above{z-index:18}
+.panel-in{width:404px;height:100%;display:flex;flex-direction:column;padding:0 20px 12px}
+.ph{height:72px;flex:none;display:flex;align-items:center;justify-content:space-between}
+.ph .n{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500}
+.ph .acts{display:flex;gap:16px;color:#4b5563;align-items:center}
+.chat{flex:1;overflow:auto;display:flex;flex-direction:column}
+.empty{margin:auto;text-align:center}
+.orb{width:66px;height:66px;border-radius:50%;margin:0 auto 22px;background:radial-gradient(circle at 35% 30%,#7fd0ff,#5b6ee8 60%,#7a4fe0);box-shadow:0 8px 24px rgba(91,110,232,.4);display:grid;place-items:center;color:#fff}.orb .ico{width:30px;height:30px}
+.empty p{font-size:15px;line-height:1.4}
+.sug{display:flex;flex-direction:column;gap:8px;margin:0 0 10px}
+.sug button{text-align:left;border:1px solid var(--border);border-radius:5px;padding:9px 12px;font-size:12px;background:#fff}
+.sug button:hover{background:#f5f8fe}
+.msg{max-width:88%;padding:9px 12px;border-radius:12px;margin-top:10px;font-size:13px;line-height:1.45}
+.msg.u{align-self:flex-end;background:var(--blue);color:#fff}.msg.b{align-self:flex-start;background:#f3f4f6}
+.input{border:1px solid #6b7280;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:14px}
+.input input{border:0;outline:0;font:inherit;font-size:13.5px;width:100%}
+.input .bar{display:flex;justify-content:flex-end;align-items:center}
+.send{width:32px;height:32px;border-radius:6px;background:#e5e7eb;color:#fff;display:grid;place-items:center}
+.send.on{background:var(--blue)}
+.disc{text-align:center;font-size:11px;color:var(--muted);margin-top:8px}
+
+.crumb{display:flex;align-items:center;gap:8px}.crumb button{color:var(--blue);font-size:1rem}.crumb span{color:var(--muted);font-size:1rem}
+.main header .crumb h1{font-size:1.25rem;font-weight:500}
+.facts{display:flex;gap:8px;color:#4b5563}.facts button{width:32px;height:32px;border-radius:6px;display:grid;place-items:center}.facts button:hover{background:#f3f4f6}
+.crumb[hidden],.facts[hidden],.fullbody[hidden]{display:none}
+.fullbody{flex:1;min-height:0;width:100%;max-width:50rem;margin-inline:auto;display:flex;flex-direction:column;padding:0 32px 14px}
+.fullbody .sug{max-width:31rem;width:100%;margin:0 auto 24px}
+.fullbody .input{margin-top:0}
+.panel.hide,.ai-btn[hidden]{display:none}
+@media(max-width:600px){.fullbody{padding-inline:16px}}
+
+.main{position:relative}
+#homePage.withDock{padding-bottom:230px}
+.dock{position:absolute;left:0;right:0;bottom:0;padding:48px 32px 10px;background:linear-gradient(to top,#fff 62%,rgba(255,255,255,0));pointer-events:none;z-index:5}
+.dock[hidden]{display:none}
+.dock-in{max-width:50rem;margin-inline:auto;pointer-events:auto}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:10px}
+.chips button{border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13px;background:#fff;color:#374151}
+.chips button:hover{background:#f5f8fe}
+.dock .input{background:#fff}
+.um{align-self:flex-end;max-width:93%;background:#e8effc;border-radius:6px;padding:9px 12px;font-size:14px;line-height:1.45;margin:22px 0 26px}
+.am{font-size:14px;line-height:1.5;margin-bottom:26px}
+.am .tp{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-bottom:8px}.am .tp .ico{width:12px;height:12px}
+.am ul{margin:8px 0 8px 20px;padding:0}.am li{margin:2px 0}.am p{margin:8px 0}
+.am .fb{display:flex;gap:10px;margin-top:10px;color:#6b7280}.am .fb .ico{width:16px;height:16px}
+.think{color:var(--muted);font-size:13.5px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+.panel .um{margin:14px 0 18px;font-size:13px}.panel .am{font-size:13px}
+.chat{padding-right:2px}
+.rwrap{max-width:86rem;margin-inline:auto}
+.rwrap .sec-h h3,.rwrap .sec-h .sub{max-width:50rem}
+.rgroup{font-size:12px;color:var(--muted);margin:26px 0 8px}
+.rrow{display:flex;justify-content:space-between;gap:16px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:#fff}
+.rrow:hover{background:#f7f9fd}.rrow.sel{border-color:#9db9ee;background:#f5f8fe}
+.rrow b{display:block;font-weight:500;font-size:14px}.rrow span.p{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;max-width:50rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrow .w{font-size:12px;color:var(--muted);flex:none;white-space:nowrap}
+.fullbody .chips{margin-bottom:10px}
+@media(max-width:600px){.dock{padding:40px 12px 8px}.scroll{padding-inline:16px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<!-- Icons: Lucide (lucide.dev) -->
+<symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+<symbol id="i-layout-dashboard" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1" /> <rect width="7" height="5" x="14" y="3" rx="1" /> <rect width="7" height="9" x="14" y="12" rx="1" /> <rect width="7" height="5" x="3" y="16" rx="1" /></symbol>
+<symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="m9 14 2 2 4-4" /></symbol>
+<symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z" /></symbol>
+<symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></symbol>
+<symbol id="i-circle-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /> <path d="M12 17h.01" /></symbol>
+<symbol id="i-layout-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+<symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6" /></symbol>
+<symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol>
+<symbol id="i-maximize-2" viewBox="0 0 24 24"><path d="M15 3h6v6" /> <path d="m21 3-7 7" /> <path d="m3 21 7-7" /> <path d="M9 21H3v-6" /></symbol>
+<symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7" /> <path d="M12 19V5" /></symbol>
+<symbol id="i-bot" viewBox="0 0 24 24"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></symbol>
+<symbol id="i-book-open" viewBox="0 0 24 24"><path d="M12 5v16" /> <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></symbol>
+<symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /> <path d="M9 18h6" /> <path d="M10 22h4" /></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34" /> <circle cx="11" cy="11" r="8" /></symbol>
+<symbol id="i-pencil-ruler" viewBox="0 0 24 24"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13" /> <path d="m8 6 2-2" /> <path d="m18 16 2-2" /> <path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17" /> <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></symbol>
+<symbol id="i-maximize" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></symbol>
+<symbol id="i-minimize" viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3" /> <path d="M21 8h-3a2 2 0 0 1-2-2V3" /> <path d="M3 16h3a2 2 0 0 1 2 2v3" /> <path d="M16 21v-3a2 2 0 0 1 2-2h3" /></symbol>
+<symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /> <path d="M7 10v12" /></symbol>
+<symbol id="i-thumbs-down" viewBox="0 0 24 24"><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z" /> <path d="M17 14V2" /></symbol>
+<symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /> <path d="M21 3v5h-5" /> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /> <path d="M8 16H3v5" /></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /> <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol>
+</defs></svg>
+
+<div class="app">
+  <div class="scrim" id="scrim"></div>
+  <div class="body">
+    <div class="navslot" id="navslot"><nav id="nav">
+      <button class="collapse" id="collapse" title="Collapse menu" aria-label="Collapse menu"><svg class="ico"><use href="#i-chevron-left"/></svg></button>
+      <button class="item active" id="navHome"><svg class="ico"><use href="#i-house"/></svg><span class="lbl">For You</span></button>
+      <button class="item" data-grp="g1"><svg class="ico"><use href="#i-search"/></svg><span class="lbl">Investigate</span><svg class="ico chev"><use href="#i-chevron-up"/></svg></button>
+      <div class="grp" id="g1"><button class="sub">Top Insights</button><button class="sub">AI Agents</button></div>
+      <button class="item" data-grp="g2"><svg class="ico"><use href="#i-pencil-ruler"/></svg><span class="lbl">Define</span><svg class="ico chev"><use href="#i-chevron-up"/></svg></button>
+      <div class="grp" id="g2"><button class="sub">Metrics</button><button class="sub">Categories</button></div>
+      <button class="item"><svg class="ico"><use href="#i-layout-dashboard"/></svg><span class="lbl">Dashboards &amp; Reports</span></button>
+      <button class="item"><svg class="ico"><use href="#i-book-open"/></svg><span class="lbl">Knowledge Performance</span></button>
+      <button class="item"><svg class="ico"><use href="#i-bookmark"/></svg><span class="lbl">Saved Dashboards</span></button>
+      <button class="item" id="navRecent"><svg class="ico"><use href="#i-history"/></svg><span class="lbl">Recent</span></button>
+      <div class="spacer"></div>
+    </nav></div>
+
+    <main class="main">
+      <header>
+        <h1 id="h1">For You</h1>
+        <div class="crumb" id="crumb" hidden><button id="crumbLink">For You</button><span>/</span><h1 id="crumbTitle">AI Assistant</h1></div>
+        <div class="facts" id="facts" hidden><button id="fNew" title="New chat" aria-label="New chat"><svg class="ico"><use href="#i-plus"/></svg></button><button id="fMin" title="Minimize" aria-label="Minimize"><svg class="ico"><use href="#i-minimize"/></svg></button><button id="fClose" title="Close" aria-label="Close"><svg class="ico"><use href="#i-x"/></svg></button></div>
+        <button class="ai-btn" id="aiBtn" data-track="ai-assistant-toggle"><svg class="ico"><use href="#i-sparkles"/></svg><span id="aiLbl">Open AI Assistant</span></button>
+      </header>
+      <div class="scroll" id="homePage"><div class="content">
+        <section class="brief">
+          <div class="tag"><span class="dot"><svg class="ico"><use href="#i-sparkles"/></svg></span>Morning Briefing</div>
+          <h2>Good morning, Sam.</h2>
+          <p>Three anomalies from the Top Insights feed are worth a real look this morning, Priya needs a cost-to-serve metric for the quarterly review, and a new cancellation-intent category is ready to define.</p>
+        </section>
+
+        <div class="sec-h"><h3>Your metrics at a glance</h3></div>
+        <div class="tiles">
+          <button class="tile"><div class="l">CSAT</div><div class="v"><span class="n g">4.4</span><span class="pill g">+0.2</span></div><div class="s">Whole org · This week</div></button>
+          <button class="tile"><div class="l">Contacts handled</div><div class="v"><span class="n">19,640</span><span class="pill g">+3%</span></div><div class="s">All channels · Last 24 hours</div></button>
+          <button class="tile"><div class="l">Average handle time</div><div class="v"><span class="n">5:12</span><span class="pill g">−4%</span></div><div class="s">Whole org · Past month</div></button>
+        </div>
+
+        <div class="eyebrow">Heads Up</div><h3>What you need to know</h3><div class="sub-t">Three anomalies surfaced in the Top Insights feed overnight.</div>
+        <div class="list">
+          <div class="row"><span class="chip c-t">Act Today</span><span class="t"><b>Gold-Tier Escalation Spike</b><span>Gold-tier complaints escalating at 7x the usual rate.</span></span><span class="m"><b>18.6%</b>escalation rate</span></div>
+          <div class="row"><span class="chip c-h">Heads Up</span><span class="t"><b>Sentiment Drop</b><span>Web-checkout failures driving negative sentiment 2.2x baseline.</span></span><span class="m"><b>37.5%</b>negative sentiment</span></div>
+          <div class="row"><span class="chip c-h">Heads Up</span><span class="t"><b>Order Resolution Drop</b><span>Resolution rate on returns and exchange calls 14 pts below baseline.</span></span><span class="m"><b>~61%</b>resolution (combined)</span></div>
+        </div>
+
+        <div class="eyebrow">Act Today</div><h3>What I'd do today</h3><div class="sub-t">One investigation, one definition to ship, one category to stand up.</div>
+        <div class="cards">
+          <div class="card"><span class="k">Investigate</span><b>The Returns AI Agent containment break</b><p>Get ahead of it before the Ops review — confirm whether it's the model or the data.</p></div>
+          <div class="card"><span class="k">Publish</span><b>The cost-to-serve metric Priya asked for</b><p>Inputs exist — defining it now unblocks her quarterly review prep two days early.</p></div>
+          <div class="card"><span class="k">Stand up</span><b>A cancellation-intent analysis category</b><p>Lets leaders slice interactions by cancel/switch intent — the phrases are already drafted.</p></div>
+        </div>
+      </div></div>
+      <div class="scroll" id="recentPage" hidden><div class="content"><div class="rwrap">
+        <div class="sec-h" style="margin-top:0"><h3>Your conversations</h3><div class="sub">Everything you've asked the AI Assistant, now and before. Save one as a dashboard to keep it.</div></div>
+        <div id="recentList"></div>
+      </div></div></div>
+      <div class="fullbody" id="fullbody" hidden></div>
+      <div class="dock" id="homeDock">
+        <div class="dock-in">
+          <div class="chips" id="homeChips"></div>
+          <form class="input" id="hform">
+            <input id="hq" placeholder="Ask anything..." autocomplete="off">
+            <div class="bar"><button class="send" id="hsend" type="submit" aria-label="Send"><svg class="ico"><use href="#i-arrow-up"/></svg></button></div>
+          </form>
+          <div class="disc">AI assistant can make mistakes. Double check responses.</div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="panel" id="panel" aria-label="AI Assistant">
+      <div class="panel-in">
+        <div class="ph">
+          <div class="n"><span class="dot" style="width:22px;height:22px"><svg class="ico"><use href="#i-sparkles"/></svg></span>AI Assistant</div>
+          <div class="acts"><button id="newChat" title="New chat"><svg class="ico"><use href="#i-plus"/></svg></button><button id="expandBtn" title="Full screen" aria-label="Full screen"><svg class="ico"><use href="#i-maximize"/></svg></button><button id="closeBtn" title="Close"><svg class="ico"><use href="#i-x"/></svg></button></div>
+        </div>
+        <div class="chat" id="chat">
+          <div class="empty" id="empty"><div class="orb"><svg class="ico"><use href="#i-sparkles"/></svg></div><p>Hi Sam,<br>How can i help?</p></div>
+        </div>
+        <div class="sug" id="sug">
+          <button>What changed in Returns Agent containment?</button>
+          <button>Help me define cost-to-serve by site</button>
+          <button>What anomalies should I investigate today?</button>
+        </div>
+        <div class="chips" id="chips"></div>
+        <form class="input" id="form">
+          <input id="q" placeholder="Ask anything..." autocomplete="off">
+          <div class="bar"><button class="send" id="send" type="submit"><svg class="ico"><use href="#i-arrow-up"/></svg></button></div>
+        </form>
+        <div class="disc" id="disc">AI assistant can make mistakes. Double check responses.</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const VARIANT='C',B=VARIANT==='B',C=VARIANT==='C';
+const $=id=>document.getElementById(id);
+const log=(e,d={})=>{try{window.parent.postMessage({type:'ab-event',variant:VARIANT,event:e,...d},'*')}catch(_){};console.log('[A/B '+VARIANT+']',e,d)};
+const panel=$('panel'),btn=$('aiBtn'),chat=$('chat'),q=$('q'),pin=document.querySelector('.panel-in'),fullbody=$('fullbody');
+const nav=$('nav'),slot=$('navslot'),scrim=$('scrim');
+const mqXL=matchMedia('(min-width:1200px)'),mqMD=matchMedia('(min-width:900px)');
+const mode=()=>mqXL.matches?'xl':mqMD.matches?'md':'sm';
+const CHIPS=['Show me a chart of this','Compare to last week','Draft a message about this'];
+
+/* ---------- content (fictional) ---------- */
+const R=[
+ {re:/returns|contain|agent/i,name:"Returns Agent containment",lead:"Containment on the Returns AI Agent has dropped since Tuesday. Here's the pattern:",bullets:["Containment: 58% (was 71%)","Exchange requests routed to a human: up 3x","Policy-lookup timeouts: 212 since Tuesday"],tail:"The drop tracks the timeouts, not the model's answers. That points to the policy data source. Worth confirming with the Ops team before the review."},
+ {re:/cost|serve|site/i,name:"Cost-to-serve by site",lead:"Here's a first definition for cost-to-serve:",bullets:["Numerator: agent labor + telephony + platform cost","Denominator: resolved contacts","Cut by: site, channel"],tail:"Labor and telephony inputs already exist. Platform cost needs an allocation rule. Want me to draft this for Priya's review?"},
+ {re:/anomal|investigate|today/i,name:"Today's anomalies",lead:"Here's how I'd order the three anomalies:",bullets:["Gold-tier escalation spike: 18.6%, about 7x normal","Sentiment drop: 37.5% negative, 2.2x baseline","Order resolution drop: ~61%, 14 pts below baseline"],tail:"Start with the escalation spike — it's the only one tied to a customer segment with contract risk. The other two both trace back to web checkout and returns, so they may share a root cause."},
+ {re:/chart/i,name:"Escalation rate chart",lead:"Here's the Gold-tier escalation rate for the last 14 days:",bullets:["Days 1–11: flat near 2.5%","Day 12 (Tuesday): jump to 11%","Today: 18.6%"],tail:"I can save this as a dashboard so you can keep an eye on it."},
+ {re:/compare|last week/i,name:"Week-over-week comparison",lead:"Compared with last week:",bullets:["CSAT: 4.4 (+0.2)","Contacts handled: 19,640 (+3%)","Average handle time: 5:12 (−4%)","Escalation rate: 18.6% (was 2.6%)"],tail:"Escalation rate is the only metric moving the wrong way."},
+ {re:/draft|message/i,name:"Message draft",lead:"Here's a draft:",bullets:[],tail:"“Hi team, overnight Top Insights flagged a spike in Gold-tier escalations (18.6%, ~7x baseline). I'm investigating and will share findings before the Ops review.”"}
+];
+const FALLBACK={name:null,lead:"I can help with your metrics, anomalies, and definitions.",bullets:[],tail:"Try asking about Returns Agent containment, cost-to-serve, or today's anomalies."};
+const past=(name,u,r,when,group)=>({name,named:true,page:'home',when,group,msgs:[{u},{r}]});
+const PAGE={home:'For You',recent:'Recent'};
+const convs=[
+ past("Containment trend by agent","How has containment trended for each AI agent this week?",{lead:"Containment by agent, this week:",bullets:["Billing agent: 64% (steady)","Returns agent: 58% (down 13 pts)","Scheduling agent: 72% (up 2 pts)"],tail:"The Returns agent is the only one with a meaningful change."},"9:41 AM","Today"),
+ past("Handle time outliers by queue","Which queues have the largest handle time outliers?",{lead:"Queues furthest above their handle time baseline:",bullets:["Refunds: 6:40 (baseline 5:10)","Account changes: 7:05 (baseline 6:20)"],tail:"Both are driven by a small number of long calls rather than a broad shift."},"8:15 AM","Today"),
+ past("First-contact resolution definition","Help me define first-contact resolution",{lead:"A working definition:",bullets:["Numerator: contacts resolved with no repeat contact in 7 days","Denominator: all resolved contacts","Exclusions: callbacks the customer requested"],tail:"Want me to publish this as a metric?"},"4:30 PM","Yesterday"),
+ past("Sentiment by channel","Show sentiment by channel for the last 30 days",{lead:"Net sentiment by channel, last 30 days:",bullets:["Voice: +12","Chat: +18","Email: −4","Mobile app: −9"],tail:"Mobile app is the weakest, and it is getting worse week over week."},"11:02 AM","Yesterday"),
+ past("Top contact drivers, Gold tier","What are the top contact drivers for Gold-tier customers?",{lead:"Top drivers for Gold-tier customers:",bullets:["Billing disputes: 24%","Delivery delays: 19%","Plan changes: 14%"],tail:"Billing disputes are also the most likely to escalate."},"Mon","Earlier this week"),
+ past("Knowledge gaps in returns","Where are the knowledge article gaps in returns?",{lead:"Gaps found in the returns knowledge base:",bullets:["Exchange with price difference: no article","International returns: outdated","Store credit: conflicting versions"],tail:"These three account for most of the policy lookups that time out."},"Fri","Earlier this week")
+];
+let cur=null;
+const S={page:'home',full:false,fullNoMin:false,from:null,panel:!B&&!C&&mqMD.matches};   // C: the side panel starts closed
+let navExpanded=true,navFloat=false;
+
+/* ---------- rendering ---------- */
+const el=(t,c,h)=>{const d=document.createElement(t);if(c)d.className=c;if(h!=null)d.innerHTML=h;return d};
+const esc=x=>x.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const ic=n=>`<svg class="ico"><use href="#i-${n}"/></svg>`;
+const ORB=`<div class="empty"><div class="orb">${ic('sparkles')}</div><p>Hi Sam,<br>How can i help?</p></div>`;
+const newConv=()=>({name:null,named:false,page:S.page,when:'Just now',group:'Today',msgs:[],pending:false});
+function aiEl(r){return el('div','am',`<p>${esc(r.lead)}</p>${r.bullets.length?'<ul>'+r.bullets.map(b=>`<li>${esc(b)}</li>`).join('')+'</ul>':''}<p>${esc(r.tail)}</p>`)}
+function thinkEl(){return el('div','am',`<div class="think">Thinking…</div>`)}
+function renderChat(){
+  chat.innerHTML='';
+  const empty=!cur||(!cur.msgs.length&&!cur.pending);
+  $('sug').style.display=empty?'':'none';
+  $('chips').style.display=(!empty&&S.full)?'':'none';
+  if(empty){chat.innerHTML=ORB;return}
+  cur.msgs.forEach(m=>chat.appendChild(m.u!=null?el('div','um',esc(m.u)):aiEl(m.r)));
+  if(cur.pending)chat.appendChild(thinkEl());
+  chat.scrollTop=chat.scrollHeight;
+}
+function renderRecent(){
+  const list=$('recentList');list.innerHTML='';
+  let g=null;
+  convs.forEach(c=>{
+    if(c.group!==g){g=c.group;list.appendChild(el('div','rgroup',g))}
+    const first=c.msgs.find(m=>m.u!=null);
+    const row=el('button','rrow'+(c===cur?' sel':''),`<span><b>${esc(c.name)}</b><span class="p">${esc(first?first.u:'')}</span></span><span class="w">${PAGE[c.page]} · ${c.when}</span>`);
+    row.onclick=()=>openConv(c);
+    list.appendChild(row);
+  });
+}
+
+/* ---------- layout ---------- */
+function layout(){
+  const m=mode(),home=S.page==='home'&&!S.full,recent=S.page==='recent'&&!S.full;
+  const docked=S.panel&&!S.full;
+  const dockOn=(B&&home&&!S.panel)||(C&&home);   // B: bottom input replaces the panel on home; C: bottom input sits alongside the side panel (which behaves exactly like A)
+  $('homePage').hidden=!home;$('homePage').classList.toggle('withDock',dockOn);
+  if($('homeDock'))$('homeDock').hidden=!dockOn;
+  $('recentPage').hidden=!recent;fullbody.hidden=!S.full;
+  $('h1').hidden=S.full;$('h1').textContent=PAGE[S.page];
+  $('crumb').hidden=!S.full;$('facts').hidden=!S.full;$('fMin').hidden=S.fullNoMin;
+  btn.hidden=S.full||(B&&dockOn);
+  const named=!!(cur&&cur.named);
+  // breadcrumbs always show the page the conversation lives on; only the last segment changes once it has a name
+  $('crumbLink').textContent=PAGE[cur?cur.page:S.page];
+  $('crumbTitle').textContent=named?cur.name:'AI Assistant';
+  $('navHome').classList.toggle('active',S.page==='home');
+  $('navRecent').classList.toggle('active',S.page==='recent');
+  // chat body lives in the panel or, in full screen, in the main area
+  const target=S.full?fullbody:pin;
+  if(chat.parentElement!==target)[chat,$('sug'),$('chips'),$('form'),$('disc')].forEach(k=>target.appendChild(k));
+  // nav
+  const navForced=m==='sm'||(m==='md'&&docked);
+  if(!navForced)navFloat=false;
+  const rail=navForced||!navExpanded;
+  slot.classList.toggle('rail',rail);
+  nav.classList.toggle('collapsed',rail&&!navFloat);
+  nav.classList.toggle('float',navFloat);
+  panel.classList.toggle('float',m==='sm');
+  panel.classList.toggle('open',docked);panel.classList.toggle('hide',S.full);
+  btn.classList.toggle('open',S.panel);
+  $('aiLbl').textContent=S.panel?'Close AI Assistant':'Open AI Assistant';
+  btn.setAttribute('aria-expanded',S.panel);
+  scrim.classList.toggle('on',navFloat||(docked&&m==='sm'));
+  scrim.classList.toggle('above',navFloat);
+  $('collapse').setAttribute('aria-label',navFloat?'Close menu':'Toggle menu');
+}
+
+/* ---------- conversation ---------- */
+function ask(t,src){
+  t=t.trim();if(!t)return;
+  log('question_asked',{text:t,from:src});
+  if(src==='dock'&&!C){cur=newConv();S.full=true;S.fullNoMin=false;S.from=null}
+  else if(!cur)cur=newConv();
+  if(src==='dock'&&C){S.panel=true}   // C: the conversation lives in the side panel (as in A); the bottom input just opens/feeds it
+  const c=cur;
+  c.msgs.push({u:t});c.pending=true;
+  ['q','hq'].forEach(id=>{if($(id))$(id).value=''});['send','hsend'].forEach(id=>{if($(id))$(id).classList.remove('on')});
+  renderChat();layout();
+  const r=R.find(x=>x.re.test(t))||FALLBACK;
+  // the answer arrives after a "thinking" phase; only then does a new chat get its name and move into Recent
+  setTimeout(()=>{
+    c.pending=false;c.msgs.push({r});
+    if(!c.named){
+      c.named=true;
+      const w=t.split(/\s+/).slice(0,6).join(' ');
+      c.name=r.name||(w.length>40?w.slice(0,40)+'…':w);
+      convs.unshift(c);log('conversation_saved',{name:c.name});
+    }
+    if(cur===c)renderChat();
+    renderRecent();layout();
+  },2600);
+}
+const defaultPanel=()=>!C&&mqMD.matches;   // C: panel is closed by default on every page
+function goHome(){S.page='home';S.full=false;S.fullNoMin=false;S.from=null;S.panel=!B&&defaultPanel();if(!C)cur=null;renderChat();renderRecent();layout()}
+function goRecent(){S.page='recent';S.full=false;S.fullNoMin=false;S.from=null;S.panel=defaultPanel();if(!C)cur=null;renderChat();renderRecent();layout();log('recent_page')}
+// leaving a full-screen chat: back to where it was opened from (Recent), or to the page it lives on, without the panel
+function leaveFull(){
+  const c=cur;S.full=false;S.fullNoMin=false;
+  if(S.from==='recent'){S.page='recent';cur=null}else{S.page=c?c.page:S.page}
+  S.from=null;S.panel=false;renderChat();renderRecent();layout()}
+// choosing a conversation in Recent takes you to the page it belongs to
+function openConv(c){
+  cur=c;log('recent_opened',{name:c.name,page:c.page});
+  if(c.page==='home'){
+    S.page='home';
+    if(B){S.full=true;S.fullNoMin=true;S.from='recent';S.panel=false}   // B: no side panel on the home page, so the conversation takes the whole page (no minimize)
+    else{S.full=false;S.panel=true}                                    // A: the side panel opens on the home page
+  }else{S.page=c.page;S.full=false;S.panel=true}
+  renderChat();renderRecent();layout();
+  if(S.full)setTimeout(()=>q.focus(),100)}
+
+/* ---------- wiring ---------- */
+CHIPS.forEach(t=>{
+  [$('homeChips'),$('chips')].filter(Boolean).forEach(box=>{const b=el('button',null,t);b.onclick=()=>{log('suggestion_clicked',{text:t});ask(t,box.id==='homeChips'?'dock':'chat')};box.appendChild(b)});
+});
+document.querySelectorAll('#sug button').forEach(b=>b.onclick=()=>{log('suggestion_clicked',{text:b.textContent});ask(b.textContent,'panel')});
+if(B||C)$('hform').onsubmit=e=>{e.preventDefault();ask($('hq').value,'dock')};
+$('form').onsubmit=e=>{e.preventDefault();ask(q.value,'chat')};
+if(B||C){$('hq').oninput=()=>$('hsend').classList.toggle('on',!!$('hq').value.trim());$('hq').onfocus=()=>log('composer_focus')}
+q.oninput=()=>$('send').classList.toggle('on',!!q.value.trim());
+const fresh=()=>{cur=newConv();renderChat();renderRecent();layout();log('new_chat');setTimeout(()=>q.focus(),50)};
+$('newChat').onclick=fresh;$('fNew').onclick=fresh;
+$('expandBtn').onclick=()=>{S.full=true;S.fullNoMin=false;S.from=null;renderChat();layout();log('chat_fullscreen');setTimeout(()=>q.focus(),100)};
+$('fMin').onclick=()=>{log('chat_minimize');S.full=false;S.page=cur?cur.page:S.page;S.panel=true;renderChat();renderRecent();layout()};
+$('closeBtn').onclick=()=>{S.panel=false;layout();log('panel_close')};
+btn.onclick=()=>{S.panel=!S.panel;layout();log(S.panel?'panel_open':'panel_close')};
+$('fClose').onclick=()=>{log('chat_close');leaveFull()};
+$('crumbLink').onclick=()=>leaveFull();
+$('navHome').onclick=goHome;
+$('navRecent').onclick=goRecent;
+scrim.onclick=()=>{if(navFloat){navFloat=false;layout()}else{S.panel=false;layout()}};
+mqXL.onchange=mqMD.onchange=layout;
+$('collapse').onclick=()=>{const m=mode();
+  if(m==='sm'||(m==='md'&&S.panel&&!S.full))navFloat=!navFloat;else navExpanded=!navExpanded;
+  layout();log(navFloat?'menu_float_open':navExpanded?'menu_expand':'menu_collapse')};
+document.querySelectorAll('[data-grp]').forEach(b=>b.onclick=()=>{const g=$(b.dataset.grp);const h=g.style.display==='none';g.style.display=h?'':'none';b.querySelector('.chev use').setAttribute('href',h?'#i-chevron-up':'#i-chevron-down')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(navFloat){navFloat=false;layout()}else if(S.full)($('fMin').hidden?$('fClose'):$('fMin')).click();else if(S.panel){S.panel=false;layout()}}});
+if(!B&&!C)$('homeDock').remove();
+renderChat();renderRecent();layout();
+</script>
+</body>
+</html>
